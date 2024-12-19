@@ -26,7 +26,7 @@ func TestEncryptFile(t *testing.T) {
 		t.Fatalf("Failed to create test input file: %v", err)
 	}
 	defer os.Remove(input)
-	// defer os.Remove(output)
+	defer os.Remove(output)
 
 	err = EncryptFile(input, output, key)
 	if err != nil {

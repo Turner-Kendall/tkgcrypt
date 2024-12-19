@@ -2,26 +2,52 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/Turner-Kendall/tkgcrypt/decrypt"
 	"github.com/Turner-Kendall/tkgcrypt/encrypt"
+	"github.com/Turner-Kendall/tkgcrypt/utils"
 )
 
 func main() {
-	// key := "SneakyNinjasHideInPlainSight2024"
-	key := "AllYourDataAreBelongToAES256Bits" // 32-byte key for AES-256
 
-	// Encrypt the file
-	if err := encrypt.EncryptFile("plaintext.txt", "encrypted.bin", key); err != nil {
-		fmt.Printf("Error encrypting file: %v\n", err)
-		return
-	}
-	fmt.Println("File encrypted successfully!")
+	key := utils.KeyPhrase()
 
-	// Decrypt the file
-	if err := decrypt.DecryptFile("encrypted.bin", "decrypted.txt", key); err != nil {
-		fmt.Printf("Error decrypting file: %v\n", err)
-		return
+	inFile := "plaintext.txt"
+	outFile := "encrypted.bin"
+	mode := "none"
+
+	if len(os.Args) > 1 {
+		mode = os.Args[1]
+		inFile = os.Args[2] + ".txt"
+		outFile = os.Args[2] + ".bin"
+	} else {
+		mode = "encrypt"
 	}
-	fmt.Println("File decrypted successfully!")
+
+	if utils.KeyLen(key) {
+		fmt.Println("Valid key length!")
+	} else {
+		fmt.Printf("key length must be 32 bytes, got %d", len(key))
+		os.Exit(1)
+	}
+
+	if mode == "encrypt" {
+		if err := encrypt.EncryptFile(inFile, outFile, key); err != nil {
+			fmt.Printf("Error encrypting file: %v\n", err)
+			return
+		}
+		fmt.Println("File encrypted successfully!")
+	} else if mode == "decrypt" {
+		// Decrypt the file
+		if err := decrypt.DecryptFile(outFile, inFile, key); err != nil {
+			fmt.Printf("Error decrypting file: %v\n", err)
+			return
+		}
+		fmt.Println("File decrypted successfully!")
+	} else {
+		fmt.Println("That does not compute")
+		os.Exit(1)
+	}
+
 }
